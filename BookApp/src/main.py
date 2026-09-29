@@ -1,7 +1,13 @@
 import flet as ft
-import os,databese, Database, Book
+from view import BookApp
 
 def main(page: ft.Page):
+    page.title = 'BookApp'
+    page.add(BookApp())
+if __name__ == "__main__":
+    ft.run(main)
+
+'''def main(page: ft.Page):
     db_path = os.path.join(os.environ['FLET_APP_STORAGE_DATA'], 'bookApp.db')
 
     db = Database(db_path)
@@ -60,8 +66,8 @@ def main(page: ft.Page):
             book
             )
     
+'''
 
-if __name__ == "__main__":
-    ft.run(main)
+
 
    

@@ -2,6 +2,9 @@ import os
 import sqlite3
 from model import Book
 
+#
+DB_PATH = os.path.join(os.environ['FLET_APP_STORAGE_DATA'], 'bookApp.db')
+
 #os.path join concatena caminhos com o separador do sistema
 #i.e. no Windows, o separador é \ e no Linux é /
 BOOKAPP_SQL_PATH = os.path.join(
@@ -17,10 +20,12 @@ INSERT_BOOK_QUERY = '''
         VALUES (?, ?, ?, ?);
 '''
 
+FETCH_BOOKS_QUERY = '''
+    SELECT title, author, desc, price FROM books;
+'''
+
 class Database(object):
-    def __init__(self, db_path:str):
-        '''db_path: caminho para o arquivo de banco de dados(sqlite)'''
-        self.db_path = db_path
+    def __init__(self):
         self.__create_tables()
     def __connect(self) -> sqlite3.Connection:
         '''
@@ -30,8 +35,10 @@ class Database(object):
         *    cria tabelas a partir da leitura do script
         *    fecha "conn" e fecha "sqlf"
         '''
-        return sqlite3.connect(self.db_path)
+        return sqlite3.connect(DB_PATH)
     def __create_tables(self):
+
+
         ''''Cria as tabelas do banco de dados'''
         with self.__connect() as conn:
             with open(BOOKAPP_SQL_PATH, 'r', encoding='utf-8') as sqlf:
@@ -48,4 +55,22 @@ class Database(object):
         with self.__connect() as conn:
             conn.execute(INSERT_BOOK_QUERY, (book.title, book.author, book.desc, book.price))
     def fetch_all(self) -> list[Book]:
-        pass
+        '''
+        fetch_all pega todos os livros do banco de dados e retorna uma lista de objetos Book'''
+
+        ret = []
+        with self.__connect() as conn:
+            cur = conn.cursor()
+            cur.execute(FETCH_BOOKS_QUERY)
+            #cada valor de rows corresponde a uma tupla
+            #contendo os valores de cada coluna do banco de dados
+            rows = cur.fetchall()
+            for row in rows:
+                book = Book(
+                    title=str(row[0]),
+                    author=str(row[1]),
+                    desc=str(row[2]),
+                    price=float(row[3])
+                )
+                ret.append(book)
+        return ret
