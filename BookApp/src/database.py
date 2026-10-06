@@ -16,12 +16,12 @@ BOOKAPP_SQL_PATH = os.path.join(
 )
 
 INSERT_BOOK_QUERY = '''
-    INSERT INTO books (title, author, desc, price) 
-        VALUES (?, ?, ?, ?);
+    INSERT INTO books (title, author, desc, price, image_url) 
+        VALUES (?, ?, ?, ?, ?);
 '''
 
 FETCH_BOOKS_QUERY = '''
-    SELECT title, author, desc, price FROM books;
+    SELECT title, author, desc, price, image_url FROM books;
 '''
 
 class Database(object):
@@ -37,13 +37,16 @@ class Database(object):
         '''
         return sqlite3.connect(DB_PATH)
     def __create_tables(self):
-
-
         ''''Cria as tabelas do banco de dados'''
         with self.__connect() as conn:
             with open(BOOKAPP_SQL_PATH, 'r', encoding='utf-8') as sqlf:
                 sql_script = sqlf.read()
             conn.executescript(sql_script)
+
+            columns = conn.execute("PRAGMA table_info(books)").fetchall()
+            existing_columns = {column[1] for column in columns}
+            if 'image_url' not in existing_columns:
+                conn.execute('ALTER TABLE books ADD COLUMN image_url TEXT;')
     def insert(self, book: Book):
         '''
         Insere um livro no banco de dados
@@ -53,7 +56,7 @@ class Database(object):
         '''
 
         with self.__connect() as conn:
-            conn.execute(INSERT_BOOK_QUERY, (book.title, book.author, book.desc, book.price))
+            conn.execute(INSERT_BOOK_QUERY, (book.title, book.author, book.desc, book.price, book.image_url))
     def fetch_all(self) -> list[Book]:
         '''
         fetch_all pega todos os livros do banco de dados e retorna uma lista de objetos Book'''
@@ -70,7 +73,8 @@ class Database(object):
                     title=str(row[0]),
                     author=str(row[1]),
                     desc=str(row[2]),
-                    price=float(row[3])
+                    price=float(row[3]),
+                    image_url=str(row[4]) if row[4] is not None else ""
                 )
                 ret.append(book)
         return ret
