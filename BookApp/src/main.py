@@ -4,6 +4,12 @@ from view import BookApp
 def main(page: ft.Page):
     page.title = 'BookApp'
     page.add(BookApp())
+    book_app = BookApp()
+    page.add(ft.SafeArea(
+        expand=True,
+        content=book_app
+    ))
+    book_app.load_books()
 if __name__ == "__main__":
     ft.run(main)
 

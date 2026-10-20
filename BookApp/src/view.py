@@ -8,7 +8,7 @@ DEFAULT_IMAGE_URL = "src/assets/default_book.jpg"
 
 
 def build_image_src(url: str):
-    cleaned_url = (url or "").strip()
+    cleaned_url = (url or "").stri ()
     if not cleaned_url:
         return DEFAULT_IMAGE_URL
 
@@ -66,6 +66,12 @@ class BookApp(ft.Container):
             bgcolor=ft.Colors.GREY_900,
             color=ft.Colors.WHITE,
             border_color=ft.Colors.BLUE_400,
+            keyboard_type=ft.KeyboardType.NUMBER,
+            input_filter=ft.InputFilter(
+                allow=True,
+                regex_string=r"^\d*\.?\d*$",
+                replacement_string="",
+            ),
         )
         self.image_url_txt = ft.TextField(
             label="Image URL",
