@@ -1,15 +1,67 @@
 import flet as ft
-from view import BookApp
+from model import Book
+from view import BookApp, build_book_details
 
 def main(page: ft.Page):
     page.title = 'BookApp'
-    page.add(BookApp())
-    book_app = BookApp()
-    page.add(ft.SafeArea(
-        expand=True,
-        content=book_app
-    ))
-    book_app.load_books()
+    page.padding = 0
+
+    async def go_back(e=None):
+        if len(page.views) > 1:
+            page.views.pop()
+            await page.push_route(page.views[-1].route)
+
+    async def open_book(book: Book):
+        page.views.append(
+            ft.View(
+                route="/book",
+                controls=[
+                    ft.SafeArea(
+                        expand=True,
+                        content=build_book_details(book, go_back),
+                    )
+                ],
+            )
+        )
+        await page.push_route("/book")
+
+    async def open_screen_2(e=None):
+        page.views.append(
+            ft.View(
+                route="/add",
+                controls=[
+                    ft.SafeArea(
+                        expand=True,
+                        content=BookApp(
+                            on_switch_screen=go_back,
+                            on_open_book=open_book,
+                            screen_number=2,
+                        ),
+                    )
+                ],
+            )
+        )
+        await page.push_route("/add")
+
+    page.on_route_change = lambda e: page.update()
+    page.on_view_pop = go_back
+    page.views.clear()
+    page.views.append(
+        ft.View(
+            route="/",
+            controls=[
+                ft.SafeArea(
+                    expand=True,
+                    content=BookApp(
+                        on_switch_screen=open_screen_2,
+                        on_open_book=open_book,
+                        screen_number=1,
+                    ),
+                )
+            ],
+        )
+    )
+
 if __name__ == "__main__":
     ft.run(main)
 

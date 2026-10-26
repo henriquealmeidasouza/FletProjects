@@ -1,5 +1,11 @@
 # Bookapp app
 
+## Navegação
+
+Use **Adicionar livro** para abrir outra tela com o mesmo formulário. Ao selecionar
+um livro da lista, o aplicativo abre uma tela de detalhes somente para leitura.
+O botão **Voltar** retorna à tela de onde os detalhes foram abertos.
+
 ## Run the app
 
 ### uv

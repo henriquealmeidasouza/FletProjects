@@ -1,14 +1,13 @@
-import base64
 import flet as ft
 
 from database import Database
 from model import Book
 
-DEFAULT_IMAGE_URL = "src/assets/default_book.jpg"
+DEFAULT_IMAGE_URL = "default_book.jpg"
 
 
 def build_image_src(url: str):
-    cleaned_url = (url or "").stri ()
+    cleaned_url = (url or "").strip()
     if not cleaned_url:
         return DEFAULT_IMAGE_URL
 
@@ -26,15 +25,70 @@ def build_image_src(url: str):
     return cleaned_url
 
 
+def build_book_details(book: Book, on_back):
+    return ft.Container(
+        expand=True,
+        bgcolor=ft.Colors.BLACK,
+        padding=20,
+        content=ft.Column(
+            expand=True,
+            scroll="auto",
+            controls=[
+                ft.Button("Voltar", on_click=on_back),
+                ft.Image(
+                    src=build_image_src(book.image_url),
+                    width=180,
+                    height=250,
+                    fit="cover",
+                    border_radius=12,
+                ),
+                ft.Text(
+                    book.title,
+                    size=22,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.WHITE,
+                ),
+                ft.Text(book.author, size=16, color=ft.Colors.BLUE_100),
+                ft.Text(book.desc, size=16, color=ft.Colors.GREY_300),
+                ft.Text(str(book.price), size=16, color=ft.Colors.GREEN_300),
+                *(
+                    [ft.Text(book.image_url, size=14, color=ft.Colors.GREY_300)]
+                    if book.image_url
+                    else []
+                ),
+            ],
+            spacing=12,
+        ),
+    )
+
+
 @ft.control
 class BookApp(ft.Container):
-    def __init__(self):
+    def __init__(self, on_switch_screen=None, on_open_book=None, screen_number=1):
         super().__init__()
         self.expand = True
         self.bgcolor = ft.Colors.BLACK
         self.border_radius = 18
         self.padding = 20
         self.db = Database()
+        self.on_switch_screen = on_switch_screen
+        self.on_open_book = on_open_book
+
+        header = ft.Row(
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            controls=[
+                ft.Text(
+                    f"Tela {screen_number}",
+                    size=22,
+                    weight=ft.FontWeight.BOLD,
+                    color=ft.Colors.WHITE,
+                ),
+                ft.Button(
+                    f"Ir para Tela {3 - screen_number}",
+                    on_click=self.on_switch_screen,
+                ),
+            ],
+        )
 
         self.title_txt = ft.TextField(
             label="Title",
@@ -130,7 +184,7 @@ class BookApp(ft.Container):
 
         self.content = ft.Column(
             expand=True,
-            controls=[form_row, self.output_col],
+            controls=[header, form_row, self.output_col],
             spacing=20,
         )
         self.load_books()
@@ -192,7 +246,17 @@ class BookApp(ft.Container):
                 ),
             ],
         )
-        self.output_col.controls.append(book_row)
+        async def open_book(e):
+            if self.on_open_book:
+                await self.on_open_book(book)
+
+        self.output_col.controls.append(
+            ft.Container(
+                content=book_row,
+                ink=True,
+                on_click=open_book,
+            )
+        )
 
     def clear_fields(self):
         self.title_txt.value = ""
