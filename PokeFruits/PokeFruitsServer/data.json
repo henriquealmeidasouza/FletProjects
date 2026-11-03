@@ -1,0 +1,28 @@
+[
+    {
+        "id": 1,
+        "url_image": "https://picsum.photos/400/400",
+        "code": "5048ba4b0d704e38a4b1b446ad199fd6",
+        "name": "Bananachu",
+        "type": ["Electric"],
+        "weight_g": 6000,
+        "height_cm": 40,
+        "weakness": ["Ground"],
+        "strength": ["Water", "Flying"],
+        "Evolution": ["Bachu"],
+        "voice": "https://fake.sound/bananachu.ogg"
+    },
+    {
+        "id": 1,
+        "url_image": "https://picsum.photos/400/400",
+        "code": "78ad06f7f3d24dc483fbdea61f45e520",
+        "name": "Pearas",
+        "type": ["Insect", "Grass"],
+        "weight_g": 5400,
+        "height_cm": 30,
+        "weakness": ["Fire","Ice","Rock", "Poison", "Flying", "Insect"],
+        "strength": ["Fighter", "Water", "Plant","Electric", "Ground"],
+        "evolution": [null],
+        "voice": "https://fake.sound/pearas.ogg"
+    }
+]
