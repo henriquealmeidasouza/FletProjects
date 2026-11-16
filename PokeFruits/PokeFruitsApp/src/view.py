@@ -4,6 +4,8 @@ import flet as ft
 import flet_camera as fc
 import numpy as np
 
+from qrcode_utils import extract_pokefruit_code
+
 PIC_IVAL = 1
 
 @ft.control
@@ -83,5 +85,10 @@ class MainScreen(ft.Container):
         await self.camera.run()
 
     def on_detect_qrcode(self, data: str):
-        self.qr_content.value = data
+        try:
+            code = extract_pokefruit_code(data)
+        except ValueError as error:
+            self.qr_content.value = str(error)
+        else:
+            self.qr_content.value = code
         self.qr_content.update()
