@@ -1,6 +1,7 @@
 import asyncio
 import os
 import random
+import sys
 import uuid
 
 import cv2
@@ -9,7 +10,12 @@ import flet_camera as fc
 import numpy as np
 import requests
 
-from database import get_pokefruit_data, list_saved_pokefruits, save_pokefruit_data
+from database import (
+    PokeFruitDatabase,
+    get_pokefruit_data,
+    list_saved_pokefruits,
+    save_pokefruit_data,
+)
 from qrcode_utils import extract_pokefruit_code
 
 PIC_IVAL = 1
@@ -93,11 +99,19 @@ def fetch_pokefruit_data(code: str | None):
 @ft.control
 class CameraWidget(ft.Container):
     def init(self):
-        self.preview = fc.Camera(
-            expand=True,
-            preview_enabled=True,
-        )
-        self.content = self.preview
+        self.preview = None
+        self.desktop = sys.platform.startswith("win")
+        if self.desktop:
+            self.content = ft.Text(
+                "Leitura por câmera disponível apenas no dispositivo móvel.",
+                text_align=ft.TextAlign.CENTER,
+            )
+        else:
+            self.preview = fc.Camera(
+                expand=True,
+                preview_enabled=True,
+            )
+            self.content = self.preview
         self.camera_initialized = False
         self.on_detect_qrcode = None
 
@@ -116,6 +130,8 @@ class CameraWidget(ft.Container):
         return None
 
     async def init_camera(self):
+        if self.desktop:
+            raise RuntimeError("A câmera não é suportada no Windows desktop.")
         cameras = await self.preview.get_available_cameras()
         if not cameras:
             raise RuntimeError("Nenhuma câmera disponível no dispositivo.")
